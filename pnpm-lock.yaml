@@ -17,6 +17,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.1.16
         version: 4.1.16(rolldown-vite@7.1.14(@types/node@24.9.2)(jiti@2.6.1))
+      gsap:
+        specifier: ^3.13.0
+        version: 3.13.0
       install:
         specifier: ^0.13.0
         version: 0.13.0
