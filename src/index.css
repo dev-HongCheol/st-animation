@@ -1,6 +1,12 @@
 /* https://github.com/adrianhajdin/award-winning-website/blob/main/src/index.css 참고 */
 @import "tailwindcss";
 
+body {
+  width: 100%;
+  background-color: #dfdff0;
+  font-family: "General Sans", sans-serif;
+}
+
 @layer base {
   @font-face {
     font-family: "circular-web";

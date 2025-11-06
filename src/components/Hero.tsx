@@ -6,18 +6,22 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/all";
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.normalizeScroll(true);
 
 const Hero = () => {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [hasClicked, setHasClicked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingVideos, setLoadingVideos] = useState(0);
+  // FIXME: 사용도를 모르겠음. 불필요 로직
+  const [loadedVideos, setLoadedVideos] = useState(0);
 
   const totalVideos = 3;
   const nextVideoRef = useRef<HTMLVideoElement>(null);
+  const backgroundVideoRef = useRef<HTMLVideoElement>(null);
 
   const handleVideoLoad = () => {
-    setLoadingVideos((pre) => pre + 1);
+    console.log(loadedVideos);
+    setLoadedVideos((pre) => pre + 1);
   };
 
   useGSAP(
@@ -35,11 +39,10 @@ const Hero = () => {
             nextVideoRef.current?.play();
           },
         });
-        gsap.from("#current-video", {
-          transformOrigin: "center, center",
-          scale: 0,
-          duration: 1.5,
-          ease: "power1.inOut",
+        gsap.from("#next-video", {
+          onComplete: () => {
+            backgroundVideoRef.current?.pause();
+          },
         });
       }
     },
@@ -47,23 +50,24 @@ const Hero = () => {
   );
 
   useGSAP(() => {
-    gsap.set("#video-frame", {
-      // clipPath: "polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)",
-      clipPath: "polygon(14% 0%, 72% 0%, 90% 90%, 0% 100%)",
-      borderRadius: "0 0 40% 10%",
-    });
-
-    gsap.from("#video-frame", {
-      clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-      borderRadius: "0% 0% 0% 0%",
-      ease: "power1.inOut",
-      scrollTrigger: {
-        trigger: "#video-frame",
-        start: "center center",
-        end: "bottom center",
-        scrub: true,
+    gsap.fromTo(
+      "#video-frame",
+      {
+        clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+        borderRadius: "0",
       },
-    });
+      {
+        clipPath: "polygon(14% 0%, 72% 0%, 90% 90%, 0% 100%)",
+        borderRadius: "0 0 40% 10%",
+        ease: "power1.inOut",
+        scrollTrigger: {
+          trigger: "#video-frame",
+          start: "center center",
+          end: "bottom center",
+          scrub: true,
+        },
+      }
+    );
   });
 
   const upcomingVideoIndex = useMemo(
@@ -72,9 +76,27 @@ const Hero = () => {
   );
 
   useEffect(() => {
-    if (loadingVideos === totalVideos - 1) {
-      setLoadingVideos((pre) => pre + 1);
+    if (loadedVideos === totalVideos - 1) {
+      setLoadedVideos((pre) => pre + 1);
     }
+  }, [loadedVideos]);
+
+  // 모바일환경 백그라운드 자동재생
+  useEffect(() => {
+    const playBackgroundVideo = () => {
+      if (backgroundVideoRef.current) {
+        backgroundVideoRef.current.play().catch(console.error);
+      }
+    };
+
+    playBackgroundVideo();
+    document.addEventListener("touchstart", playBackgroundVideo, {
+      once: true,
+    });
+
+    return () => {
+      document.removeEventListener("touchstart", playBackgroundVideo);
+    };
   }, []);
 
   const handleMiniVideoClick = () => {
@@ -83,13 +105,10 @@ const Hero = () => {
   };
   const getVideoSrc = (index: number) => `videos/hero-${index}.mp4`;
 
-  // FIXME:
-  // 비디오 1,2가 같은 ref를 사용함
-
   return (
-    <div className="relative h-dvh w-screen overflow-x-hidden">
+    <div className="relative h-full w-full">
       {isLoading && (
-        <div className="flex-center absolute z-[100] h-dvh w-screen overflow-hidden bg-violet-50">
+        <div className="flex-center absolute z-[100] h-full w-full bg-violet-50">
           <div className="three-body">
             <div className="three-body__dot" />
             <div className="three-body__dot" />
@@ -99,33 +118,17 @@ const Hero = () => {
       )}
       <div
         id="video-frame"
-        className="relative z-10 h-dvh w-screen overflow-hidden rounded-lg bg-blue-75"
+        className="relative z-10 h-dvh w-full rounded-lg bg-blue-75"
+        onClick={handleMiniVideoClick}
       >
         <div>
-          <div className="mask-clip-path absolute-center absolute z-50 size-64 cursor-pointer overflow-hidden rounded-lg">
-            <div
-              onClick={handleMiniVideoClick}
-              className="origin-center scale-50 opacity-0 transition-all duration-500 ease-in hover:scale-100 hover:opacity-100"
-            >
-              {/* video 1 */}
-              <video
-                ref={nextVideoRef}
-                src={getVideoSrc(upcomingVideoIndex)}
-                loop
-                muted
-                id="current-video"
-                className="size-64 origin-center scale-150 object-cover object-center"
-                onLoadedData={handleVideoLoad}
-              />
-            </div>
-          </div>
-
           {/* video 2 */}
           <video
             ref={nextVideoRef}
             src={getVideoSrc(currentIndex)}
             loop
             muted
+            playsInline
             id="next-video"
             className="absolute-center invisible absolute z-20 size-64 object-cover object-center"
             onLoadedData={handleVideoLoad}
@@ -133,20 +136,17 @@ const Hero = () => {
 
           {/* video 3 */}
           <video
+            ref={backgroundVideoRef}
             src={getVideoSrc(
               currentIndex === totalVideos - 1 ? 1 : currentIndex
             )}
-            autoPlay
             loop
             muted
+            playsInline
             className="absolute left-0 top-0 size-full object-cover object-center"
             onLoadedData={handleVideoLoad}
           />
         </div>
-
-        <h1 className="special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
-          G<b>a</b>ming
-        </h1>
 
         <div className="absolute left-0 top-0 z-40 size-full">
           <div className="mt-24 px-5 sm:px-10">
@@ -167,11 +167,14 @@ const Hero = () => {
               containerClass={"bg-yellow-300 flex-center gap-1"}
             />
           </div>
+          <p className="special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
+            G<b>a</b>ming
+          </p>
         </div>
       </div>
-      <h1 className="special-font hero-heading absolute bottom-5 right-5 text-blue-black">
+      <p className="special-font hero-heading absolute bottom-5 right-5 text-blue-black">
         G<b>a</b>ming
-      </h1>
+      </p>
     </div>
   );
 };
