@@ -7,6 +7,11 @@ clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 object-cover object-center
 -translate-y-1/2
 
+mix-blend-mode
+
+grid
+filter: url("#flt_tag");
+
 ```typescript
 const titleAnimation = gsap.timeline({
   scrollTrigger: {
