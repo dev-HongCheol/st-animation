@@ -30,7 +30,7 @@ const Story = () => {
                 <img
                   onMouseLeave={onMouseEnter}
                   onMouseEnter={handleMouseLeave}
-                  src={"/img/entrance.webp"}
+                  src={"img/entrance.webp"}
                   alt="entrance"
                   className="object-contain transition duration-800 ease-in-out"
                 />
