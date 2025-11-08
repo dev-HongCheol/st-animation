@@ -11,7 +11,7 @@ ScrollTrigger.normalizeScroll(true);
 const Hero = () => {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [hasClicked, setHasClicked] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   // FIXME: 사용도를 모르겠음. 불필요 로직
   const [loadedVideos, setLoadedVideos] = useState(0);
 

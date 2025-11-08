@@ -11,7 +11,7 @@ interface Props {
   isComingSoon: boolean;
 }
 
-const BentoCard = ({ src, title, description, isComingSoon }: Props) => {
+const BentoCard = ({ src, title, description }: Props) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   useGSAP(() => {
     if (!videoRef.current) return;
