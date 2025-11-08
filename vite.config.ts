@@ -12,4 +12,5 @@ export default defineConfig({
   build: {
     outDir: "docs",
   },
+  publicDir: "/st-animation",
 });
