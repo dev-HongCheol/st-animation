@@ -8,4 +8,8 @@ export default defineConfig({
   server: {
     allowedHosts: ["devhong.asuscomm.com"],
   },
+  base: "/st-animation",
+  build: {
+    outDir: "docs",
+  },
 });
